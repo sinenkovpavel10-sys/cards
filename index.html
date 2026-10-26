@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="ru"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#16332f">
+<link rel="manifest" href="manifest.json"><link rel="icon" href="icon-192.png">
+<title>Карточки из конспекта</title>
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+[hidden]{display:none!important}
+:root{--bg:#16332f;--sf:#1e423d;--tx:#e9f0ea;--mu:#8fb0a6;--ok:#3ba776;--no:#d9534f;--ac:#f4d35e;--pp:#f6f2e4;--ink:#1d2433;--ig:#6b7488;--ln:#2d5a53}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--tx);font:16px/1.45 system-ui,Roboto,sans-serif;overscroll-behavior:none}
+body{padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
+.scr{display:none;height:100%;flex-direction:column;gap:12px;padding:16px;max-width:560px;margin:0 auto}
+.scr.on{display:flex}
+.pn{flex:1;min-height:0;display:flex;flex-direction:column;gap:12px}
+h1{font:700 22px Georgia,'Noto Serif',serif;margin:0;flex:1}
+.top{display:flex;align-items:center;gap:10px}
+.ib{background:var(--sf);border:0;color:var(--tx);width:42px;height:42px;border-radius:12px;font-size:20px;flex:none}
+label{display:block;font-size:13px;color:var(--mu);margin-bottom:4px}
+textarea,input,select{width:100%;background:var(--sf);color:var(--tx);border:1px solid var(--ln);border-radius:12px;padding:12px;font:inherit}
+textarea{flex:1;min-height:0;resize:none}
+.fld{display:flex;flex-direction:column;flex:1;min-height:0}
+.btn{width:100%;background:var(--ac);color:var(--ink);border:0;border-radius:14px;padding:15px;font:inherit;font-weight:700;font-size:17px}
+.btn.g{background:var(--sf);color:var(--tx)}
+.btn:disabled{opacity:.4}
+.err{color:#ff9a94;font-size:14px}
+#nm{font:700 20px Georgia,'Noto Serif',serif;background:none;border:0;border-bottom:1px dashed var(--ln);border-radius:0;padding:6px 2px;flex:1;min-width:0}
+.tabs{display:flex;gap:6px}
+.tab{flex:1;background:var(--sf);color:var(--mu);border:0;border-radius:10px;padding:10px 4px;font:inherit;font-size:14px}
+.tab.on{background:var(--ac);color:var(--ink);font-weight:700}
+.ex{display:flex;flex-direction:column;align-items:flex-start;width:100%;text-align:left;background:var(--sf);color:var(--tx);border:0;border-radius:14px;padding:14px 16px;gap:2px;font:inherit}
+.ex b{font:700 18px Georgia,'Noto Serif',serif}.ex span{font-size:13px;color:var(--mu)}
+.pg{height:6px;background:var(--sf);border-radius:9px;overflow:hidden}
+.pg i{display:block;height:100%;width:0;background:var(--ac);transition:width .3s}
+#deck{flex:1;position:relative;min-height:0}
+#deck::before{content:"";position:absolute;inset:6px 10px -4px;background:#d8cfb0;border-radius:14px;transform:rotate(-1.8deg)}
+.card{position:absolute;inset:0 0 8px;background:var(--pp);background-image:repeating-linear-gradient(transparent 0 31px,#c9d6ea 31px 32px);color:var(--ink);border-radius:14px;border-top:5px solid var(--no);padding:20px 22px;display:flex;flex-direction:column;touch-action:pan-y;user-select:none;transition:transform .25s,opacity .25s;overflow:hidden;box-shadow:0 12px 28px #0007}
+.card::after{content:"";position:absolute;inset:0;pointer-events:none;background:var(--c,transparent);opacity:calc(var(--g,0)*.4)}
+.card[data-d=r]{--c:var(--ok)}.card[data-d=l]{--c:var(--no)}
+.lbl{font-size:13px;color:var(--ig)}
+.q{font:600 23px/32px Georgia,'Noto Serif',serif;margin:auto 0;text-align:center}
+.q.s{font-size:16px;margin:8px 0 10px;text-align:left;color:var(--ig);font-weight:500}
+.a{flex:1;overflow-y:auto;font:17px/32px Georgia,'Noto Serif',serif}
+.bd{display:inline-block;font:13px/1.2 system-ui,sans-serif;padding:4px 10px;border-radius:99px;background:#e4dcc2;margin-top:8px}
+.hint{text-align:center;font-size:13px;color:var(--ig)}
+#bar{display:flex;gap:10px;align-items:center;justify-content:center;padding:4px 0 8px}
+#bar .btn{flex:1;width:auto;padding:14px 8px;font-size:16px}#bar .btn.sm{flex:none;padding:14px 16px}
+.r{flex:none;width:66px;height:66px;border-radius:50%;border:2px solid currentColor;background:var(--pp);font-size:28px;line-height:1}
+.nt{background:var(--pp);color:var(--ink);border-radius:12px;padding:14px 16px;margin-bottom:10px;font:16px/1.55 Georgia,'Noto Serif',serif}
+.nt b{display:block;margin-bottom:6px}
+dialog{background:var(--sf);color:var(--tx);border:0;border-radius:18px;padding:20px;width:min(94vw,440px);max-height:92vh;overflow:auto}
+dialog::backdrop{background:#000a}dialog label{margin-top:12px}
+#ed textarea{min-height:200px}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0}
+.chip{background:var(--bg);color:var(--tx);border:1px solid var(--ln);border-radius:99px;padding:6px 12px;font:inherit;font-size:13px}
+.row{display:flex;gap:10px;margin-top:12px}.row .btn{flex:1;width:auto}
+</style></head><body>
+<section class="scr on" id="s0">
+ <div class="top"><h1>Мои экзамены</h1><button class="ib" id="gear" aria-label="Настройки">⚙️</button></div>
+ <div id="exl" style="flex:1;overflow:auto;display:flex;flex-direction:column;gap:10px"></div>
+ <button class="btn" id="nex">Новый экзамен</button>
+</section>
+<section class="scr" id="s1">
+ <div class="top"><button class="ib" id="back" aria-label="К списку">←</button><input id="nm" aria-label="Название экзамена"><button class="ib" id="del" aria-label="Удалить">🗑</button></div>
+ <div class="tabs"><button class="tab" id="t1">Материалы</button><button class="tab" id="t2">Карточки</button><button class="tab" id="t3">Конспект</button></div>
+ <div class="pn" id="p1">
+  <div class="fld"><label>Конспект лекции (можно оставить пустым — ответы напишет ИИ)</label><textarea id="ml"></textarea></div>
+  <div class="fld"><label>Вопросы к экзамену, каждый с новой строки</label><textarea id="mq"></textarea></div>
+  <div class="err" id="err"></div>
+  <button class="btn" id="go">Создать карточки</button>
+ </div>
+ <div class="pn" id="p2" hidden>
+  <div class="pn" id="dk">
+   <div class="top"><div style="flex:1"><div class="pg"><i id="pb"></i></div></div><span id="cnt" style="color:var(--mu);font-size:14px"></span></div>
+   <div id="deck"><div class="card" id="card"></div></div>
+   <div id="bar"></div>
+  </div>
+  <div class="pn" id="rs" hidden>
+   <div id="res" style="flex:1;overflow:auto"></div>
+   <button class="btn" id="rep">Повторить «не знаю»</button>
+   <button class="btn g" id="all">Пройти заново</button>
+   <button class="btn g" id="lastc">К последней карточке</button>
+  </div>
+ </div>
+ <div class="pn" id="p3" hidden>
+  <button class="btn g" id="cp">Скопировать конспект</button>
+  <label style="margin:0">Нажми на ответ, чтобы исправить его. Правки сразу видны в карточках.</label>
+  <div id="nl" style="flex:1;overflow:auto"></div>
+ </div>
+</section>
+<dialog id="dlg"><form method="dialog">
+ <h2 style="margin:0 0 4px;font-size:20px">Настройки ИИ</h2>
+ <label>Провайдер</label><select id="pv"><option value="g">Google Gemini (есть бесплатный ключ)</option><option value="o">OpenAI</option></select>
+ <label>API-ключ (хранится только на этом телефоне)</label><input id="ky" type="password" autocomplete="off">
+ <label>Модель (необязательно)</label><input id="md">
+ <p style="font-size:13px;color:var(--mu)">Бесплатный ключ Gemini: aistudio.google.com/apikey</p>
+ <button class="btn" id="sv">Сохранить</button>
+</form></dialog>
+<dialog id="ed"><form method="dialog">
+ <label style="margin-top:0">Вопрос</label><input id="eq">
+ <label>Ответ</label><textarea id="ea"></textarea>
+ <label>Поправить с ИИ</label>
+ <div class="chips"><button type="button" class="chip">Подробнее</button><button type="button" class="chip">Короче</button><button type="button" class="chip">Добавь определение</button><button type="button" class="chip">Добавь доказательство</button><button type="button" class="chip">Добавь пример</button></div>
+ <input id="ei" placeholder="Что изменить? Можно оставить пустым">
+ <button type="button" class="btn g" id="eai" style="margin-top:8px">Переписать с ИИ</button>
+ <div class="err" id="eer"></div>
+ <div class="row"><button class="btn g">Отмена</button><button class="btn" id="esv">Сохранить</button></div>
+</form></dialog>
+<script>
+const $=id=>document.getElementById(id),
+ld=(k,d)=>{try{return JSON.parse(localStorage.getItem(k))??d}catch{return d}},
+sv=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch{}},
+esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])),
+nl=s=>esc(s).replace(/\n/g,'<br>'),
+DM={g:'gemini-flash-latest',o:'gpt-4o-mini'},
+B={L:'Из лекции',P:'Из лекции + дополнено ИИ',G:'Сгенерировано ИИ',E:'Отредактировано'},
+scr=n=>document.querySelectorAll('.scr').forEach(s=>s.classList.toggle('on',s.id==='s'+n)),
+PROMPT=(l,q)=>`Ты помогаешь готовиться к экзамену. Даны КОНСПЕКТ ЛЕКЦИИ и СПИСОК ВОПРОСОВ.
+Для КАЖДОГО вопроса (в том же порядке, формулировку сохрани) составь ответ:
+- ответ целиком есть в конспекте: возьми его оттуда, ничего не выдумывай; src="L"
+- в конспекте есть только часть: используй её и аккуратно дополни недостающее своими знаниями; src="P"
+- в конспекте этого нет: напиши ответ сам; src="G"
+Ответ должен быть полным, но без воды: чёткие определения; перечисления пунктами (каждый с новой строки), если вопрос этого требует; доказательство по шагам, если спрашивают теорему или доказательство; короткий пример, если он нужен. Без вступлений, без повтора вопроса, без markdown-разметки. Обычно 3–10 предложений, если нужно — больше. Пиши на языке вопроса.
+Верни ТОЛЬКО JSON: {"cards":[{"q":"вопрос","a":"ответ","src":"L"}]}
+
+КОНСПЕКТ:
+${l||'(пусто)'}
+
+ВОПРОСЫ:
+${q}`;
+let cfg=ld('cfg',{p:'g',k:'',m:''}),db=ld('db',null),E=null,EI=0,rev=false,sx=0,dx=0,drag=false,last=1,tm;
+if(!db){const o=ld('deck',null);db={ex:(o||ld('d_qs',''))?[{id:1,name:'Экзамен 1',lec:ld('d_lec',''),qs:ld('d_qs',''),cards:o?o.c:[],ord:o?o.c.map((_,i)=>i):[],i:o?o.i:0,r:o?o.r:{}}]:[]}}
+const save=()=>sv('db',db),dsv=()=>{clearTimeout(tm);tm=setTimeout(save,500)},card=$('card');
+function home(){E=null;$('exl').innerHTML=db.ex.map((e,k)=>`<button class="ex" data-k="${k}"><b>${esc(e.name)}</b><span>${e.cards.length?`${e.cards.length} карточек, знаю ${Object.values(e.r).filter(v=>v===1).length}`:'карточек ещё нет'}</span></button>`).join('')||'<p style="color:var(--mu)">Пока пусто. Создай первый экзамен.</p>';scr(0)}
+$('exl').onclick=e=>{const b=e.target.closest('.ex');if(b)opn(+b.dataset.k)};
+$('nex').onclick=()=>{db.ex.push({id:Date.now(),name:'Экзамен '+(db.ex.length+1),lec:'',qs:'',cards:[],ord:[],i:0,r:{}});save();opn(db.ex.length-1)};
+function opn(k){E=db.ex[k];rev=false;$('nm').value=E.name;$('ml').value=E.lec;$('mq').value=E.qs;$('err').textContent='';render();notes();scr(1);tab(E.cards.length?2:1)}
+function tab(n){[1,2,3].forEach(i=>{$('t'+i).classList.toggle('on',i===n);$('p'+i).hidden=i!==n})}
+[1,2,3].forEach(i=>$('t'+i).onclick=()=>tab(i));
+$('back').onclick=()=>{save();home()};
+$('del').onclick=()=>{if(confirm('Удалить этот экзамен со всеми карточками и конспектом?')){db.ex=db.ex.filter(x=>x!==E);save();home()}};
+$('nm').oninput=()=>{E.name=$('nm').value;dsv()};
+$('ml').oninput=()=>{E.lec=$('ml').value;dsv()};
+$('mq').oninput=()=>{E.qs=$('mq').value;dsv()};
+$('gear').onclick=()=>{$('pv').value=cfg.p;$('ky').value=cfg.k;$('md').value=cfg.m;$('md').placeholder=DM[cfg.p];$('dlg').showModal()};
+$('pv').onchange=()=>$('md').placeholder=DM[$('pv').value];
+$('sv').onclick=()=>{cfg={p:$('pv').value,k:$('ky').value.trim(),m:$('md').value.trim()};sv('cfg',cfg)};
+async function call(p,j,m){
+ let r,x;
+ if(cfg.p==='g'){
+  r=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(m)}:generateContent`,{method:'POST',headers:{'Content-Type':'application/json','x-goog-api-key':cfg.k},body:JSON.stringify({contents:[{parts:[{text:p}]}],generationConfig:j?{responseMimeType:'application/json'}:{}})});
+  x=await r.json();if(!r.ok)throw Error(x.error?.message||r.status);
+  return x.candidates[0].content.parts.map(y=>y.text||'').join('');
+ }
+ r=await fetch('https://api.openai.com/v1/chat/completions',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+cfg.k},body:JSON.stringify({model:m,messages:[{role:'user',content:p}],...(j&&{response_format:{type:'json_object'}})})});
+ x=await r.json();if(!r.ok)throw Error(x.error?.message||r.status);
+ return x.choices[0].message.content;
+}
+async function ask(p,j=true){
+ let m=cfg.m||DM[cfg.p],er;
+ for(let t=0;t<3;t++){
+  try{return await call(p,j,m)}catch(x){er=x;if(!/demand|overload|unavailable|exhaust|quota|429|500|503/i.test(x.message))break;if(t===1&&cfg.p==='g')m='gemini-flash-lite-latest';await new Promise(r=>setTimeout(r,2500*(t+1)))}
+ }
+ throw er;
+}
+$('go').onclick=async()=>{
+ const l=$('ml').value.trim(),q=$('mq').value.trim(),e=$('err'),b=$('go');e.textContent='';
+ if(!q){e.textContent='Добавь вопросы к экзамену';return}
+ if(!cfg.k)return $('gear').click();
+ if(E.cards.length&&!confirm('Заменить текущие карточки и конспект новыми? Твои правки пропадут.'))return;
+ b.disabled=true;b.textContent='Генерирую… до минуты';
+ try{
+  const t=await ask(PROMPT(l,q)),c=JSON.parse(t.slice(t.indexOf('{'),t.lastIndexOf('}')+1)).cards;
+  if(!c?.length)throw Error('ИИ вернул пустой ответ, попробуй ещё раз');
+  E.cards=c.map(x=>({q:String(x.q),a:String(x.a),s:x.src||'G'}));E.ord=E.cards.map((_,i)=>i);E.i=0;E.r={};rev=false;save();render();notes();tab(2);
+ }catch(x){e.textContent='Ошибка: '+x.message}
+ b.disabled=false;b.textContent='Создать карточки';
+};
+function render(){
+ $('dk').hidden=false;$('rs').hidden=true;
+ card.style.transition='none';card.style.transform='';card.style.opacity=1;card.style.setProperty('--g',0);void card.offsetWidth;card.style.transition='';
+ if(!E.cards.length){card.innerHTML='<div class="q">Карточек пока нет. Открой «Материалы» и создай их.</div>';$('bar').innerHTML='';$('cnt').textContent='';$('pb').style.width=0;return}
+ const n=E.ord.length;
+ if(E.i>=n)return fin();
+ const ix=E.ord[E.i],c=E.cards[ix];
+ $('cnt').textContent=`${E.i+1} / ${n}`;$('pb').style.width=E.i/n*100+'%';
+ card.innerHTML=rev?`<div class="lbl">Ответ (${E.r[ix]?'знаю':'не знаю'})</div><div class="q s">${esc(c.q)}</div><div class="a">${nl(c.a)}<br><span class="bd">${B[c.s]||B.G}</span></div>`
+ :`<div class="lbl">Вопрос</div><div class="q">${esc(c.q)}</div><div class="hint">влево — не знаю, вправо — знаю</div>`;
+ $('bar').innerHTML=`<button class="btn g sm" data-a="b"${E.i?'':' disabled'}>Назад</button>`+(rev?'<button class="btn g" data-a="e">Править</button><button class="btn" data-a="x">Дальше</button>':'<button class="r" data-a="n" style="color:var(--no)" aria-label="Не знаю">✕</button><button class="r" data-a="k" style="color:var(--ok)" aria-label="Знаю">✓</button>');
+}
+function fin(){
+ const u=E.ord.filter(i=>E.r[i]===0),k=E.ord.length-u.length;
+ $('res').innerHTML=`<h1 style="margin:0 0 12px">Колода пройдена</h1><p style="font-size:20px;margin:0 0 12px"><b style="color:#6fd6a3">✓ ${k}</b> знаю &nbsp; <b style="color:#ff9a94">✕ ${u.length}</b> не знаю</p>`+(u.length?'<label>Стоит повторить:</label>'+u.map(i=>`<p style="margin:6px 0">• ${esc(E.cards[i].q)}</p>`).join(''):'<p>Все карточки в «знаю».</p>');
+ $('rep').hidden=!u.length;$('dk').hidden=true;$('rs').hidden=false;
+}
+function run(o){E.ord=o;E.i=0;rev=false;if(o.length===E.cards.length)E.r={};else o.forEach(i=>delete E.r[i]);save();render()}
+$('rep').onclick=()=>run(E.ord.filter(i=>E.r[i]===0));
+$('all').onclick=()=>run(E.cards.map((_,i)=>i));
+$('lastc').onclick=()=>{E.i=E.ord.length-1;rev=false;save();render()};
+const fly=(d,cb)=>{card.style.transform=`translateX(${d*480}px) rotate(${d*22}deg)`;card.style.opacity=0;setTimeout(cb,240)},
+nxt=()=>{rev=false;E.i++;save();render()};
+function act(a){
+ if(!E||!E.cards.length||E.i>=E.ord.length)return;
+ const ix=E.ord[E.i];
+ if(a==='b'){if(E.i>0){E.i--;rev=false;save();render()}return}
+ if(a==='e')return edit(ix);
+ if(rev)return fly(last,nxt);
+ E.r[ix]=a==='k'?1:0;rev=true;save();render();
+}
+$('bar').onclick=e=>{const b=e.target.closest('button');if(b&&!b.disabled){last=1;act(b.dataset.a)}};
+card.onpointerdown=e=>{drag=true;sx=e.clientX;dx=0;card.style.transition='none';card.setPointerCapture(e.pointerId)};
+card.onpointermove=e=>{if(!drag)return;dx=e.clientX-sx;card.style.transform=`translateX(${dx}px) rotate(${dx/20}deg)`;card.dataset.d=dx>0?'r':'l';card.style.setProperty('--g',Math.min(Math.abs(dx)/120,1))};
+card.onpointerup=card.onpointercancel=e=>{
+ if(!drag)return;drag=false;card.style.transition='';card.style.setProperty('--g',0);
+ if(e.type==='pointerup'&&Math.abs(dx)<8){card.style.transform='';if(!rev)act('n')}
+ else if(Math.abs(dx)>100){last=dx>0?1:-1;act(dx>0?'k':'n')}
+ else card.style.transform='';
+};
+function notes(){$('nl').innerHTML=E.cards.length?E.cards.map((c,i)=>`<div class="nt" data-i="${i}"><b>${i+1}. ${esc(c.q)}</b>${nl(c.a)}</div>`).join(''):'<p style="color:var(--mu)">Ответы появятся здесь, когда ты создашь карточки.</p>'}
+$('nl').onclick=e=>{const n=e.target.closest('.nt');if(n)edit(+n.dataset.i)};
+$('cp').onclick=()=>{navigator.clipboard?.writeText(E.cards.map((c,i)=>`${i+1}. ${c.q}\n${c.a}`).join('\n\n')).then(()=>{$('cp').textContent='Скопировано';setTimeout(()=>$('cp').textContent='Скопировать конспект',1500)})};
+function edit(i){EI=i;const c=E.cards[i];$('eq').value=c.q;$('ea').value=c.a;$('ei').value='';$('eer').textContent='';$('ed').showModal()}
+$('ed').querySelectorAll('.chip').forEach(c=>c.onclick=()=>$('ei').value=c.textContent);
+$('esv').onclick=()=>{const c=E.cards[EI],q=$('eq').value.trim()||c.q,a=$('ea').value.trim();if(q!==c.q||a!==c.a){c.q=q;c.a=a;c.s='E'}save();notes();render()};
+$('eai').onclick=async()=>{
+ const b=$('eai'),e=$('eer');e.textContent='';
+ if(!cfg.k){e.textContent='Сначала вставь API-ключ в настройках на главном экране';return}
+ b.disabled=true;b.textContent='Переписываю…';
+ try{
+  const t=await ask(`Перепиши ответ на экзаменационный вопрос по указанию. Верни ТОЛЬКО новый текст ответа: без пояснений, без markdown-разметки, пункты с новой строки.\n\nКОНСПЕКТ ЛЕКЦИИ:\n${E.lec||'(пусто)'}\n\nВОПРОС: ${$('eq').value}\n\nТЕКУЩИЙ ОТВЕТ:\n${$('ea').value}\n\nУКАЗАНИЕ: ${$('ei').value.trim()||'Проверь и улучши ответ: исправь ошибки, добавь недостающее (определения, перечисления, доказательства, если они нужны).'}`,false);
+  $('ea').value=t.trim();
+ }catch(x){e.textContent='Ошибка: '+x.message}
+ b.disabled=false;b.textContent='Переписать с ИИ';
+};
+home();
+if('serviceWorker'in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
+</script></body></html>
